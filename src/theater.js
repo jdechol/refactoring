@@ -30,31 +30,32 @@ export const statement = (invoice, plays = plays) => {
     let volumeCredits = 0;
     volumeCredits += Math.max(performance.audience - 30, 0);
 
-    // add extra credit for every ten comedy attendees
     if ("comedy" === playFor(performance).type)
       volumeCredits += Math.floor(performance.audience / 5);
 
     return volumeCredits;
   };
 
+  const usd = (number) => {
+    return new Intl.NumberFormat("en-US",
+      {
+        style: "currency", currency: "USD",
+        minimumFractionDigits: 2
+      }).format(number)
+  };
 
   let totalAmount = 0;
   let volumeCredits = 0;
   let result = `Statement for ${invoice.customer}\n`;
-  const format = new Intl.NumberFormat("en-US",
-    {
-      style: "currency", currency: "USD",
-      minimumFractionDigits: 2
-    }).format;
 
   for (let performance of invoice.performances) {
     volumeCredits += volumeCreditsFor(performance);
 
     // print line for this order
-    result += `  ${playFor(performance).name}: ${format(amountFor(performance, playFor(performance)) / 100)} (${performance.audience} seats)\n`;
+    result += `  ${playFor(performance).name}: ${usd(amountFor(performance) / 100)} (${performance.audience} seats)\n`;
     totalAmount += amountFor(performance, playFor(performance));
   }
-  result += `Amount owed is ${format(totalAmount / 100)}\n`;
+  result += `Amount owed is ${usd(totalAmount / 100)}\n`;
   result += `You earned ${volumeCredits} credits\n`;
   return result;
 };
