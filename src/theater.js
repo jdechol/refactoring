@@ -1,4 +1,4 @@
-export const statement = (invoice, plays = plays) => {
+export const statement = (invoice, plays) => {
   const playFor = (aPerformance) => {
     return plays[aPerformance.playID];
   };
@@ -64,14 +64,28 @@ export const statement = (invoice, plays = plays) => {
     return result;
   };
 
-  let result = `Statement for ${invoice.customer}\n`;
+  const enrichPerformance = (performance) => {
+    const result = Object.assign({}, performance);
+    result.play = playFor(performance);
+    return result;
+  };
 
-  for (let performance of invoice.performances) {
-    result += `  ${playFor(performance).name}: ${usd(amountFor(performance) / 100)} (${performance.audience} seats)\n`;
-  }
-  result += `Amount owed is ${usd(totalAmount() / 100)}\n`;
-  result += `You earned ${totalVolumeCredits()} credits\n`;
-  return result;
+  const renderPlainText = (data) => {
+    let result = `Statement for ${data.customer}\n`;
+
+    for (let performance of data.performances) {
+      result += `  ${performance.play.name}: ${usd(amountFor(performance) / 100)} (${performance.audience} seats)\n`;
+    }
+    result += `Amount owed is ${usd(totalAmount() / 100)}\n`;
+    result += `You earned ${totalVolumeCredits()} credits\n`;
+    return result;
+  };
+
+  const statementData = {};
+  statementData.customer = invoice.customer;
+  statementData.performances = invoice.performances.map(enrichPerformance);
+
+  return renderPlainText(statementData);
 };
 
 
