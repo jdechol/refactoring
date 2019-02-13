@@ -37,13 +37,9 @@ export const statement = (invoice, plays) => {
   };
 
   const totalVolumeCredits = () => {
-    let volumeCredits = 0;
-
-    for (let performance of invoice.performances) {
-      volumeCredits += volumeCreditsFor(performance);
-    }
-
-    return volumeCredits;
+    return invoice.performances.reduce((result, performance) => {
+      return result + volumeCreditsFor(performance);
+    }, 0);
   };
 
   const usd = (number) => {
@@ -55,18 +51,14 @@ export const statement = (invoice, plays) => {
   };
 
   const totalAmount = () => {
-    let result = 0;
-
-    for (let performance of invoice.performances) {
-      result += amountFor(performance, playFor(performance));
-    }
-
-    return result;
+    return invoice.performances.reduce((result, performance) => {
+      return result + amountFor(performance);
+    }, 0);
   };
 
   const enrichPerformance = (performance) => {
     const result = Object.assign({}, performance);
-    result.play = playFor(performance);
+    result.play = playFor(result);
     return result;
   };
 
