@@ -59,6 +59,7 @@ export const statement = (invoice, plays) => {
   const enrichPerformance = (performance) => {
     const result = Object.assign({}, performance);
     result.play = playFor(result);
+    result.amount = amountFor(result);
     return result;
   };
 
@@ -66,16 +67,18 @@ export const statement = (invoice, plays) => {
     let result = `Statement for ${data.customer}\n`;
 
     for (let performance of data.performances) {
-      result += `  ${performance.play.name}: ${usd(amountFor(performance) / 100)} (${performance.audience} seats)\n`;
+      result += `  ${performance.play.name}: ${usd(performance.amount / 100)} (${performance.audience} seats)\n`;
     }
-    result += `Amount owed is ${usd(totalAmount() / 100)}\n`;
-    result += `You earned ${totalVolumeCredits()} credits\n`;
+    result += `Amount owed is ${usd(data.totalAmount / 100)}\n`;
+    result += `You earned ${data.totalVolumeCredits} credits\n`;
     return result;
   };
 
   const statementData = {};
   statementData.customer = invoice.customer;
   statementData.performances = invoice.performances.map(enrichPerformance);
+  statementData.totalAmount = totalAmount();
+  statementData.totalVolumeCredits = totalVolumeCredits();
 
   return renderPlainText(statementData);
 };
