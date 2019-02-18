@@ -63,6 +63,16 @@ export const statement = (invoice, plays) => {
     return result;
   };
 
+  const generateData = () => {
+    const statementData = {};
+    statementData.customer = invoice.customer;
+    statementData.performances = invoice.performances.map(enrichPerformance);
+    statementData.totalAmount = totalAmount();
+    statementData.totalVolumeCredits = totalVolumeCredits();
+
+    return statementData;
+  };
+
   const renderPlainText = (data) => {
     let result = `Statement for ${data.customer}\n`;
 
@@ -74,13 +84,7 @@ export const statement = (invoice, plays) => {
     return result;
   };
 
-  const statementData = {};
-  statementData.customer = invoice.customer;
-  statementData.performances = invoice.performances.map(enrichPerformance);
-  statementData.totalAmount = totalAmount();
-  statementData.totalVolumeCredits = totalVolumeCredits();
-
-  return renderPlainText(statementData);
+  return renderPlainText(generateData());
 };
 
 
